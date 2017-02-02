@@ -37,6 +37,15 @@
 ******************************************************************************
 * BSP and emlib libraries of Silicon Labs for Leopard Gecko development board
 * used in compliance with the licenses and copyrights.
+*
+* 1. The functions that use this library are:
+* 2. void UnblockSleepMode(EnergyMode eMode);
+* 3. void BlockSleepMode(EnergyMode eMode);
+* 4. void Sleep(minimumMode);
+* 5. void CMU_Setup(void);
+* 6. void LETIMER_Setup(void);
+* 7. void LETIMER0_IRQHandler(void);
+* 8. int main();
 ******************************************************************************/
 
 
@@ -72,7 +81,7 @@ typedef enum EnergyMode_t{  		//Enumerating Energy Modes
 /******************************************
  		* Define Statements *
  ******************************************/
-#define MinimumEnergyMode EM3		//Minimum energy mode the system can enter
+#define MinimumEnergyMode EM3		//Minimum energy mode the system can enter, change this to change the minimum energy mode
 #define NumberOfEnergyModes 4		//Number of Energy modes available for the Leopard Gecko
 #define LEDPeriod 1.75				//Period between LED0 being turned on in seconds
 #define LEDOnTime 0.03				//Led on time duration in seconds, should be less than period
