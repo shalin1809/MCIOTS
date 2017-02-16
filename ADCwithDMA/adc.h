@@ -62,7 +62,7 @@
 #define ADC_TEMP_SENSOR _ADC_SINGLECTRL_INPUTSEL_TEMP       //ADC input source for temperature sensor
 #define ADC_ACQ_2CYCLES _ADC_SINGLECTRL_AT_2CYCLES          //ADC acquisition set to 2 cycles
 #define ADC_RES_12BIT   _ADC_SINGLECTRL_RES_12BIT           //ADC resolution set to 12 bit
-#define ADC_Prescale    50                                  //Prescalar value to prescale by 50
+#define ADC_Prescale    49                                  //Prescalar value to prescale by 50
 #define TGRAD_ADC       -6.3                                //Temperature gradient given in the datasheet
 #define NUMBER_OF_ADC_SAMPLES 750                           //Number of ADC samples to be averaged
 #define TGRAD_ADCTH (TGRAD_ADC*NUMBER_OF_ADC_SAMPLES)       //Temperature gradient for required number of cycles
