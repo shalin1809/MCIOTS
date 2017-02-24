@@ -36,13 +36,11 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1.
+* 1. void I2C_Setup();
 ******************************************************************************/
 
 #ifndef I2C_H
 #define I2C_H
-
-
 
 
 /*****************************************************
@@ -55,18 +53,18 @@
 /*****************************************************
  			* Define Statements *
  *****************************************************/
-#define I2C1_SCL_PORT   gpioPortC            //port C pin 5
-#define I2C1_SCL_PIN    5                    //Exp header 9
-#define I2C1_SDA_PORT   gpioPortC            //Port C pin 4
-#define I2C1_SDA_PIN    4                    //Exp header 7
-#define TSL_I2C         I2C1
+#define I2C1_SCL_PORT   gpioPortC           //port C pin 5
+#define I2C1_SCL_PIN    5                   //Exp header 9
+#define I2C1_SDA_PORT   gpioPortC           //Port C pin 4
+#define I2C1_SDA_PIN    4                   //Exp header 7
+#define TSL_I2C         I2C1                //Use I2C1 for the TSL sensor
 #define I2C_READ        0x01
 #define I2C_WRITE       0
 
 
 
 /************************************************************************
-* Description
+* Setup the I2C1 and enable interrupts
 *
 * Input variables: None
 *
@@ -85,14 +83,12 @@ __STATIC_INLINE void I2C_Setup()
         .freq = I2C_FREQ_STANDARD_MAX,      //Max frequency in standard mode
         .clhr = i2cClockHLRStandard         //Standard clock low high ratio
     };
-    I2C1->ROUTE |= I2C_ROUTE_LOCATION_LOC0 | I2C_ROUTE_SCLPEN |I2C_ROUTE_SDAPEN;
-    I2C_Init(I2C1, &i2c_Init);
-    if(I2C1->STATE & I2C_STATE_BUSY)
-        I2C1->CMD = I2C_CMD_CLEARPC | I2C_CMD_CLEARTX | I2C_CMD_ABORT;  //Clear pending commands and transmit buffer. Write only register
-    I2C_IntClear(I2C1, I2C1->IF);
-    I2C_Enable(I2C1, true);
-
-
+    I2C1->ROUTE |= I2C_ROUTE_LOCATION_LOC0 | I2C_ROUTE_SCLPEN |I2C_ROUTE_SDAPEN;    //Select location 0 to use pins PC4 and PC5 as SDA and SCL
+    I2C_Init(I2C1, &i2c_Init);              //Initialize the I2C1
+    if(I2C1->STATE & I2C_STATE_BUSY)        //If I2C is busy
+        I2C1->CMD = I2C_CMD_CLEARPC | I2C_CMD_CLEARTX | I2C_CMD_ABORT;              //Clear pending commands and transmit buffer. Write only register
+    I2C_IntClear(I2C1, I2C1->IF);           //Clear all interrupts
+    I2C_Enable(I2C1, true);                 //Enable I2C interrupts
 }
 
 

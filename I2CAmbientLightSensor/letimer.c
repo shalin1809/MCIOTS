@@ -153,7 +153,7 @@ void LETIMER0_CAL_SETUP(void)
 *
 * Input variables: None
 *
-* Global variables: None
+* Global variables: ACMPstatus, periodCount
 *
 * Returned variables: None
 **************************************************************************/
@@ -169,11 +169,10 @@ void LETIMER0_IRQHandler(void)
         GPIO_PinOutClear(LIGHTSENSE_EXCITE_PORT, LIGHTSENSE_EXCITE_PIN);    //Turn off light sensor excitation
         ACMP0->CTRL &= ~ACMP_CTRL_EN;       //Disable ACMP
 #else
-        if(periodCount++ == 0)
-            TSL2561_PowerUp();
-        else if(periodCount == 3)
-            periodCount = 0;
-        //TSL2561_Read();
+        if(periodCount++ == 0)              //For the first LETIMER period
+            TSL2561_PowerUp();              //Power up and initialize the Sensor
+        else if(periodCount == 3)           //For the third LETIMER period
+            periodCount = 0;                //Reset the counter
 #endif
         LETIMER0->IFC = intFlags;           //Clear interrupt flags
 #if ENABLE_PASSIVE_LIGHT_SENSOR
@@ -184,14 +183,14 @@ void LETIMER0_IRQHandler(void)
                 acmpInit.vddLevel = HIGH_THRESHOLD;         //change threshold to high
                 ACMP_Init(ACMP0, &acmpInit);                //re-initialize ACMP with new VddLevel
                 ACMP_ChannelSet(ACMP0, ACMP_LIGHTSENSE_REF, ACMP_LIGHTSENSE_CHANNEL);   //Swap positive and negative inputs of ACMP0
-                ledON(0);                                   //Turn ON LED
+                ledON(LIGHT_LED);                           //Turn ON LED
             }
             else                                            //if current reading is for high threshold
             {
                 acmpInit.vddLevel = LOW_THRESHOLD;          //change threshold to low
                 ACMP_Init(ACMP0, &acmpInit);                //re-initialize ACMP with new VddLevel
                 ACMP_ChannelSet(ACMP0, ACMP_LIGHTSENSE_CHANNEL, ACMP_LIGHTSENSE_REF);   //Swap positive and negative inputs of ACMP0
-                ledOFF(0);                                  //Turn off LED
+                ledOFF(LIGHT_LED);                          //Turn off LED
             }
 
         }
@@ -202,13 +201,10 @@ void LETIMER0_IRQHandler(void)
 #if ENABLE_PASSIVE_LIGHT_SENSOR
         ACMP0->CTRL |= ACMP_CTRL_EN;                                        //Enable ACMP0 warm-up
 #else
-        if(periodCount == 0)
-            TSL2561_PowerOn();
-        else if (periodCount == 2)
-        {
-            TSL2561_PowerOff();
-        }
-
+        if(periodCount == 0)                                                //For first LETIMER period
+            TSL2561_PowerOn();                                              //Enable power to the TSL2561 sensor
+        else if (periodCount == 2)                                          //End of 2nd LETIMER period
+            TSL2561_PowerOff();                                             //Disable power to the TSL2561 sensor
 #endif
         #if USE_DMA                                                         //If DMA is to be used
         {
@@ -219,7 +215,7 @@ void LETIMER0_IRQHandler(void)
             ADC0->CMD |= ADC_CMD_SINGLESTART;                               //Start ADC0
         }
         #else
-            ADC_Read();
+            ADC_Read();                                                     //ADC Read using ADC interrupts
         #endif
         LETIMER0->IFC = intFlags;                                           //Clear interrupt flags
 #if ENABLE_PASSIVE_LIGHT_SENSOR
@@ -227,7 +223,6 @@ void LETIMER0_IRQHandler(void)
         while(!(ACMP0->STATUS & ACMP_STATUS_ACMPACT));                      //Wait for warm-up to finish
 #endif
     }
-
     __enable_irq();                                                         //Re-enable interrupts
 }
 

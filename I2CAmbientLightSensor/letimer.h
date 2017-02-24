@@ -79,6 +79,8 @@ unsigned int LETIMER0_Prescaler;                 //Variable for LETIMER0 Prescal
 unsigned int ACMPstatus;                         //Variable to store ACMP status
 unsigned int periodCount;                        //Variable to count the number of LETIMER periods
 
+
+
 /************************************************************************
 * Setup and initialize the LETIMER
 *
@@ -111,7 +113,7 @@ void LETIMER0_CAL_SETUP(void);
 *
 * Input variables: None
 *
-* Global variables: None
+* Global variables: ACMPstatus, periodCount
 *
 * Returned variables: None
 **************************************************************************/

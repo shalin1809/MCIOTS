@@ -97,8 +97,8 @@ int main(void)
     ACMP0_Init();                       //Initialize ACMP
 #endif
     Init_ADC0();                        //Initialize ADC0
-    Init_DMA();
-    I2C_TSL2561_Init();
+    Init_DMA();                         //Initialize DMA
+    I2C_TSL2561_Init();                 //Initialize the TSL2561 sensor
     LETIMER_Enable(LETIMER0, true);     //Enable letimer0
     /* Infinite loop */
     while (1) {

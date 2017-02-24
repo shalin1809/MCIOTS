@@ -36,22 +36,65 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1.
+* 1. void I2C_TSL2561_Init();
+* 2. void GPIO_ODD_IRQHandler();
 ******************************************************************************/
 
-
+/*****************************************************
+            * Include Statements *
+ *****************************************************/
 #include "light_sensor.h"
 
+
+
+
+/************************************************************************
+* Function to initialize the TSL2561 sensor
+*
+* Input variables: None
+*
+* Global variables: None
+*
+* Returned variables: data
+*
+**************************************************************************/
+void I2C_TSL2561_Init()
+{
+    CMU_ClockEnable(cmuClock_GPIO, true);                                               //Enable clocks to GPIO
+    GPIO_PinModeSet(TSL2561_POWER_PORT, TSL2561_POWER_PIN, gpioModePushPull, 1);        //power up the sensor
+    GPIO_PinModeSet(TSL2561_INT_PORT, TSL2561_INT_PIN, gpioModeInput, 0);               //Initialize the interrupt pin
+    GPIO_PinModeSet(I2C1_SCL_PORT, I2C1_SCL_PIN, gpioModeWiredAndPullUp, 1);            //Enable the SCL pin
+    GPIO_PinModeSet(I2C1_SDA_PORT, I2C1_SDA_PIN, gpioModeWiredAndPullUp, 1);            //Enable the SDA pin
+    I2C_Setup();                                                                        //Setup the I2C peripheral
+    GPIO_IntConfig(TSL2561_INT_PORT,TSL2561_INT_PIN,false, true, true);                 //Setup interrupts for PD1
+    NVIC_EnableIRQ(GPIO_ODD_IRQn);                                                      //Enable interrupts for GPIO ODD pins
+}
+
+
+
+
+
+
+/************************************************************************
+* Turn off power supply to the TSL2561 powered via PD0
+*
+* Input variables: None
+*
+* Global variables: None
+*
+* Returned variables: None
+*
+**************************************************************************/
 void GPIO_ODD_IRQHandler()
 {
     __disable_irq();
-    uint8_t data;
-    data = TSL2561_Read();
-    GPIO_IntClear(GPIO->IF);
-    if(data)
-        ledOFF(0);
+    uint8_t data;                   //Variable to store the read data
+    data = TSL2561_Read();          //Read the higher byte
+    GPIO_IntClear(GPIO->IF);        //Clear the GPIO interrupt
+    if(data)                        //If brightness detected
+        ledOFF(LIGHT_LED);          //Turn off LED
     else
-        ledON(0);
+        ledON(LIGHT_LED);           //Else turn on LED
     __enable_irq();
 }
 
