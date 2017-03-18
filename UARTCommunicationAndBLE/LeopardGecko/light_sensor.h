@@ -56,6 +56,7 @@
 #include "em_cmu.h"
 #include "stdint.h"
 #include "led_control.h"
+#include "leuart.h"
 
 /*****************************************************
  			* Define Statements *
@@ -179,8 +180,8 @@ __STATIC_INLINE void TSL2561_PowerOff()
 {
     NVIC_DisableIRQ(GPIO_ODD_IRQn);                                                 //Disable interrupts
     GPIO_IntClear(GPIO->IF);                                                        //Clear interrupts
-    GPIO_PinOutClear(TSL2561_POWER_PORT, TSL2561_POWER_PIN);                        //Clear the power pin to ground value
     GPIO_PinModeSet(TSL2561_POWER_PORT, TSL2561_POWER_PIN, gpioModeDisabled, 0);    //Disable the power pin
+    GPIO_PinOutClear(TSL2561_POWER_PORT, TSL2561_POWER_PIN);                        //Clear the power pin to ground value
     GPIO_PinModeSet(TSL2561_INT_PORT, TSL2561_INT_PIN, gpioModeDisabled, 0);        //Disable the interrupt pin
     GPIO_PinModeSet(I2C1_SCL_PORT, I2C1_SCL_PIN, gpioModeDisabled, 0);              //Disable the SCL pin
     GPIO_PinModeSet(I2C1_SDA_PORT, I2C1_SDA_PIN, gpioModeDisabled, 0);              //Disable the I2C pin

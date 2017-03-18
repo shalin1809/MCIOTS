@@ -53,6 +53,8 @@
 #include "em_device.h"
 #include "dmactrl.c"
 #include "adc.h"
+#include "circular_buffer.h"
+#include "leuart.h"
 
 /*****************************************************
  			* Define Statements *

@@ -128,16 +128,38 @@ void ADC0_DMA_Init()
 void ADC0_DMA_Done(unsigned int channel, bool primary, void *user)
 {
     __disable_irq();
-    DMA->IFC = 1 << ADC0_DMA_Channel;                       //Clear DMA interrupt flag
     ADC0->CMD = ADC_CMD_SINGLESTOP;                         //Stop ADC0
     DMA->CONFIG &= ~DMA_CONFIG_EN;                          //Disable DMA
+    DMA->IFC = 1 << ADC0_DMA_Channel;                       //Clear DMA interrupt flag
+
     int count = NUMBER_OF_ADC_SAMPLES;                      //Initialize count to number of samples
     adcSum = 0;                                             //Initialize adcSum to 0
     while(count)
         adcSum += ADC0_DMA_buffer[count--];                 //Sum the ADC0 buffer values
     UnblockSleepMode(ADC_EM);                               //Unblock sleep mode
-    float temp = convertToCelcius();                        //Get the temperature in celsius using adcSum
-    if(TEMP_LOW_THRESHOLD > temp || temp > TEMP_HIGH_THRESHOLD) //If temperature exceeds boundary conditions
+    union temperature_t{
+        float temp;
+        struct bytes_t{
+            uint8_t byte1;
+            uint8_t byte2;
+            uint8_t byte3;
+            uint8_t byte4;
+        }bytes;
+    }temperature;
+    temperature.temp = convertToCelcius();                  //Get the temperature in celsius using adcSum
+
+    LEUART0->CMD = LEUART_CMD_TXEN;                         //Enable UART tx pin
+    if(sleep_block_counter[LEUART_EM]==0)
+        BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
+    add_item(tx_buff,TEMPERATURE);                          //Add temperature command to the buffer
+    add_item(tx_buff,temperature.bytes.byte1);              //Add the float value of temperature bytewize
+    add_item(tx_buff,temperature.bytes.byte2);
+    add_item(tx_buff,temperature.bytes.byte3);
+    add_item(tx_buff,temperature.bytes.byte4);
+    add_item(tx_buff,0);                                    //Append null to show end of data
+    LEUART0->IFS = LEUART_IFS_TXC;                          //Set transmit complete interrupt to trigger transmission of data
+
+    if(TEMP_LOW_THRESHOLD > temperature.temp || temperature.temp > TEMP_HIGH_THRESHOLD) //If temperature exceeds boundary conditions
     {
         ledON(1);                                           //Turn on LED 1
     }

@@ -121,6 +121,7 @@ void BlockSleepMode(EnergyMode minimumMode);
 **************************************************************************/
 __STATIC_INLINE void Sleep(void)
 {
+    __disable_irq();
     if(*sleep_block_counter>0)              //If EM0 blocked, do nothing
         return;
     else if(*(sleep_block_counter+1)>0)     //If EM1 blocked, enter EM1
@@ -131,6 +132,7 @@ __STATIC_INLINE void Sleep(void)
         EMU_EnterEM3(true);
     else                                    //If there are no blocks, do nothing, avoid entering EM4
         return;
+    __enable_irq();
 }
 
 

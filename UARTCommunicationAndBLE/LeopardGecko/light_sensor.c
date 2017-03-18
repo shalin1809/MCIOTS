@@ -91,10 +91,22 @@ void GPIO_ODD_IRQHandler()
     uint8_t data;                   //Variable to store the read data
     data = TSL2561_Read();          //Read the higher byte
     GPIO_IntClear(GPIO->IF);        //Clear the GPIO interrupt
-    if(data)                        //If brightness detected
+    if(data){                       //If brightness detected
         ledOFF(LIGHT_LED);          //Turn off LED
-    else
+        LEUART0->CMD = LEUART_CMD_TXEN;                         //Enable UART tx pin
+        BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
+        add_item(tx_buff,LIGHT_LED_OFF);                        //Add LED OFF command to the buffer
+        add_item(tx_buff,0);                                    //Append null to show end of data
+        LEUART0->IFS = LEUART_IFS_TXC;                          //Set transmit complete interrupt to trigger transmission of data
+    }
+    else{
         ledON(LIGHT_LED);           //Else turn on LED
+        LEUART0->CMD = LEUART_CMD_TXEN;                         //Enable UART tx pin
+        BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
+        add_item(tx_buff,LIGHT_LED_ON);                         //Add LED ON command to the buffer
+        add_item(tx_buff,0);                                    //Append null to show end of data
+        LEUART0->IFS = LEUART_IFS_TXC;                          //Set transmit complete interrupt to trigger transmission of data
+    }
     __enable_irq();
 }
 

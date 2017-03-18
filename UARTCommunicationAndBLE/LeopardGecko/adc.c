@@ -111,13 +111,32 @@ void ADC0_IRQHandler(void)
         ADC0->IEN &= ~ADC_IEN_SINGLE;               //Disable interrupts
         ADC0->CMD |= ADC_CMD_SINGLESTOP;            //Stop ADC0
         UnblockSleepMode(ADC_EM);                   //Unblock minimum sleep mode required for ADc
-        float temp = convertToCelcius();            //Calculate the temperature
-        if(TEMP_LOW_THRESHOLD > temp || temp > TEMP_HIGH_THRESHOLD) //If the temperature goes beyond the boundaries
+        union temperature_t{
+            float temp;
+            struct bytes_t{
+                uint8_t byte1;
+                uint8_t byte2;
+                uint8_t byte3;
+                uint8_t byte4;
+            }bytes;
+        }temperature;
+        temperature.temp = convertToCelcius();            //Calculate the temperature
+        if(TEMP_LOW_THRESHOLD > temperature.temp || temperature.temp > TEMP_HIGH_THRESHOLD) //If the temperature goes beyond the boundaries
         {
             ledON(1);                               //Turn on LED 1
         }
         else                                        //If it is within limits
             ledOFF(1);                              //Turn OFF LED 1
+
+        LEUART0->CMD = LEUART_CMD_TXEN;
+        BlockSleepMode(LEUART_EM);
+        add_item(tx_buff,TEMPERATURE);
+        add_item(tx_buff,temperature.bytes.byte1);
+        add_item(tx_buff,temperature.bytes.byte2);
+        add_item(tx_buff,temperature.bytes.byte3);
+        add_item(tx_buff,temperature.bytes.byte4);
+        add_item(tx_buff,0);
+        LEUART0->IFS = LEUART_IFS_TXC;
     }
     __enable_irq();
 }

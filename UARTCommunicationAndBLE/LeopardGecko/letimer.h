@@ -62,9 +62,9 @@
 /*****************************************************
  			* Define Statements *
  *****************************************************/
-#define LETIMER_PERIOD 4.25          //Period between LETIMER underflow in seconds
+#define LETIMER_PERIOD 3.75         //Period between LETIMER underflow in seconds
 #define LETIMER_ONTIME 0.004        //on time duration in seconds, should be less than period
-#define MinimumEnergyMode EM3       //Minimum energy mode the system can enter, change this to change the minimum energy mode
+#define MinimumEnergyMode EM2       //Minimum energy mode the system can enter, change this to change the minimum energy mode
 #define LETIMER_MAX_COUNT 0xFFFF    //Max value of LETIMER counter
 
 

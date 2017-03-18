@@ -51,6 +51,7 @@
 #include "em_leuart.h"
 #include "em_gpio.h"
 #include "circular_buffer.h"
+#include "sleep.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -68,7 +69,7 @@
 #define LEUART_CLEAR_ALL_INT    0x7F9           //Clear all interrupt flags
 #define LEUART_DIS_ALL_INT  0x7FF               //Disable all interrupt flags
 
-
+#define LEUART_EM           EM1
 
 
 /************************************************************************

@@ -82,8 +82,13 @@ void LEUART0_IRQHandler(void){
     uint8_t byte;
     __disable_irq();
     byte = remove_item(tx_buff);
+    LEUART0->IFC = LEUART_CLEAR_ALL_INT;
     if(byte)
         LEUART0_Send_Byte(byte);
+    else{
+        UnblockSleepMode(LEUART_EM);
+        LEUART0->CMD = LEUART_CMD_RXDIS|LEUART_CMD_TXDIS;
+    }
 
     __enable_irq();
 }

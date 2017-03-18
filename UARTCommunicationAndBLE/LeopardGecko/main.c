@@ -103,7 +103,8 @@ int main(void)
     Init_ADC0();                        //Initialize ADC0
     Init_DMA();                         //Initialize DMA
     leuart_setup();                     //Initialize the LEUART
-    circular_buffer_init();
+    tx_buff = &tbuff;
+    circular_buffer_init(tx_buff);
     LETIMER_Enable(LETIMER0, true);     //Enable letimer0
 
 

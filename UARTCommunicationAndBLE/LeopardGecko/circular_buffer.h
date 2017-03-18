@@ -76,8 +76,9 @@ typedef enum bufferStates{                        //Enumeration for the current 
 
 
 typedef enum CMDS_t{                        //Enumeration for the command packet
-    LED_TOGGLE = 1,
-    TEMPERATURE = 2,
+    LIGHT_LED_ON = 1,
+    LIGHT_LED_OFF = 2,
+    TEMPERATURE = 3
 }CMDS;
 
 
@@ -87,11 +88,11 @@ typedef struct CircBuf{
     uint8_t *head;
     uint8_t *tail;
     uint8_t count;
-    bufferStates_t state;
 }CircBuf_t;
 
-
+CircBuf_t tbuff;
 CircBuf_t *tx_buff;
+
 
 
 /************************************************************************
@@ -108,11 +109,9 @@ CircBuf_t *tx_buff;
 // This function checks if the buffer is empty
 __STATIC_INLINE bufferStates_t is_Buffer_empty(CircBuf_t *circ_ptr){
     if(circ_ptr -> count == 0){
-        circ_ptr -> state = Buffer_Empty;
         return Buffer_Empty;
     }
     else{
-        circ_ptr -> state = Buffer_Ok;
         return Buffer_Ok;
     }
 }
@@ -121,11 +120,9 @@ __STATIC_INLINE bufferStates_t is_Buffer_empty(CircBuf_t *circ_ptr){
 // This function checks if the buffer is full
 __STATIC_INLINE bufferStates_t is_Buffer_full(CircBuf_t *circ_ptr){
     if(circ_ptr -> count == MAX_SIZE){
-        circ_ptr -> state = Buffer_Full;
         return Buffer_Full;
     }
     else{
-        circ_ptr -> state = Buffer_Ok;
         return Buffer_Ok;
     }
 }
@@ -165,10 +162,10 @@ __STATIC_INLINE uint8_t remove_item(CircBuf_t *circ_ptr){
 
 
 
-__STATIC_INLINE void circular_buffer_init(){
-    tx_buff -> buff = tx_buffer;
-    tx_buff -> head = tx_buff -> buff;
-    tx_buff -> tail = tx_buff -> buff;
+__STATIC_INLINE void circular_buffer_init(CircBuf_t *circ_ptr){
+    circ_ptr-> buff = tx_buffer;
+    circ_ptr-> head = circ_ptr-> buff;
+    circ_ptr-> tail = circ_ptr-> buff;
 }
 
 

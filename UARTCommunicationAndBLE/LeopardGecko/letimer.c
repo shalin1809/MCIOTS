@@ -175,7 +175,11 @@ void LETIMER0_IRQHandler(void)
         else if(periodCount == 3)           //For the third LETIMER period
             periodCount = 0;                //Reset the counter
 #endif
+
+
         LETIMER0->IFC = intFlags;           //Clear interrupt flags
+
+
 #if ENABLE_PASSIVE_LIGHT_SENSOR
         if(ACMPstatus)                                      //if output is high
         {
@@ -185,6 +189,11 @@ void LETIMER0_IRQHandler(void)
                 ACMP_Init(ACMP0, &acmpInit);                //re-initialize ACMP with new VddLevel
                 ACMP_ChannelSet(ACMP0, ACMP_LIGHTSENSE_REF, ACMP_LIGHTSENSE_CHANNEL);   //Swap positive and negative inputs of ACMP0
                 ledON(LIGHT_LED);                           //Turn ON LED
+                LEUART0->CMD = LEUART_CMD_TXEN;                         //Enable UART tx pin
+                BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
+                add_item(tx_buff,LIGHT_LED_ON);                         //Add LED ON command to the buffer
+                add_item(tx_buff,0);                                    //Append null to show end of data
+                LEUART0->IFS = LEUART_IFS_TXC;                          //Set transmit complete interrupt to trigger transmission of data
             }
             else                                            //if current reading is for high threshold
             {
@@ -192,6 +201,11 @@ void LETIMER0_IRQHandler(void)
                 ACMP_Init(ACMP0, &acmpInit);                //re-initialize ACMP with new VddLevel
                 ACMP_ChannelSet(ACMP0, ACMP_LIGHTSENSE_CHANNEL, ACMP_LIGHTSENSE_REF);   //Swap positive and negative inputs of ACMP0
                 ledOFF(LIGHT_LED);                          //Turn off LED
+                LEUART0->CMD = LEUART_CMD_TXEN;                         //Enable UART tx pin
+                BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
+                add_item(tx_buff,LIGHT_LED_OFF);                        //Add LED OFF command to the buffer
+                add_item(tx_buff,0);                                    //Append null to show end of data
+                LEUART0->IFS = LEUART_IFS_TXC;                          //Set transmit complete interrupt to trigger transmission of data
             }
         }
 #endif
@@ -225,6 +239,3 @@ void LETIMER0_IRQHandler(void)
     }
     __enable_irq();                                                         //Re-enable interrupts
 }
-
-
-
