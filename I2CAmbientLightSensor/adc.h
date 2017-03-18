@@ -52,7 +52,7 @@
 #include "sleep.h"
 #include "em_device.h"                      //It includes the DEVINFO required for calibration
 #include "led_control.h"
-
+#include "leuart.h"
 
 
 /*****************************************************

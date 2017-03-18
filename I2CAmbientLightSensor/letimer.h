@@ -56,6 +56,7 @@
 #include "acmp.h"
 #include "adc.h"
 #include "dma.h"
+#include "leuart.h"
 
 
 /*****************************************************

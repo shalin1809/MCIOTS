@@ -63,11 +63,14 @@ void CMU_Setup(void)
     {
         CMU_OscillatorEnable(cmuOsc_ULFRCO, true, true);    //Enable ULFRCO clock for EM3
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO); //Select ULFRCO as the clock for LFA clock tree to the letimer
+        CMU_OscillatorEnable(cmuOsc_LFXO, true, true);      //Enable LXF0 clock oscillator
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO); //Select ULFRCO as the clock for LFB clock tree to the leuart
     }
     else
     {
         CMU_OscillatorEnable(cmuOsc_LFXO, true, true);      //Enable LXF0 clock oscillator
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);   //Select LFXO as the clock for LFA clock tree to the letimer
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);   //Select LFXO as the clock for LFB clock tree to the letimer
     }
     CMU_ClockEnable(cmuClock_CORELE, true);                 //Enable clock to Low energy peripheral clock tree
     CMU_ClockEnable(cmuClock_LETIMER0, true);               //Enable clock to letimer0
@@ -76,8 +79,9 @@ void CMU_Setup(void)
 #endif
     CMU_ClockEnable(cmuClock_ADC0, true);                   //Enable clock to ADC0
     CMU_ClockEnable(cmuClock_DMA, true);                    //Enable clock to DMA
-    CMU_ClockEnable(cmuClock_GPIO, true);                           //Enable clock to gpio
+    CMU_ClockEnable(cmuClock_GPIO, true);                   //Enable clock to gpio
     CMU_ClockEnable(cmuClock_I2C1, true);                   //Enable clock to I2C
+    CMU_ClockEnable(cmuClock_LEUART0, true);                //Enable clock to LEUART
 }
 
 

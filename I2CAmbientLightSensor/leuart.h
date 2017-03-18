@@ -1,7 +1,7 @@
 /******************************************************************************
-* File: dma.h
+* File: leuart.h
 *
-* Created on: 14-Feb-2017
+* Created on: 09-Mar-2017
 * Author: Shalin Shah
 * 
 *******************************************************************************
@@ -36,12 +36,11 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1. void Init_DMA();
-* 2. void ADC0_DMA_Init();
+* 1.
 ******************************************************************************/
 
-#ifndef DMA_H
-#define DMA_H
+#ifndef LEUART_H
+#define LEUART_H
 
 
 
@@ -49,31 +48,32 @@
 /*****************************************************
 	 		* Include Statements *
  *****************************************************/
-#include "em_dma.h"
-#include "em_device.h"
-#include "dmactrl.c"
-#include "adc.h"
+#include "em_leuart.h"
+#include "em_gpio.h"
 #include "circular_buffer.h"
-#include "leuart.h"
+#include "sleep.h"
+#include <stdbool.h>
+#include <stdint.h>
+
 
 /*****************************************************
  			* Define Statements *
  *****************************************************/
-#define ADC0_DMA_Arbitration dmaArbitrate1              //0 R_BIT value for ADC0 DMA
-#define ADC0_DMA_Channel 0                              //DMA Channel used for ADC0
-#define BYTES_2 dmaDataSize2                            //16-bit data size
-#define INC_BYTES_2 dmaDataInc2                         //16-bit data increment
+#define LEUART_LOCATION     0
+#define LEUART_TXPORT       gpioPortD           //Port D pin 4
+#define LEUART_TXPIN        4                   //Exp header 12
+#define LEUART_RXPORT       gpioPortD           //Port D pin 5
+#define LEUART_RXPIN        5                   //Exp header 14
+#define LEUART_BAUD         9600
+#define LEUART_NOREF        0
+#define LEUART_CLEAR_ALL_INT    0x7F9           //Clear all interrupt flags
+#define LEUART_DIS_ALL_INT  0x7FF               //Disable all interrupt flags
 
-
-/*****************************************************
-            * Global Variables *
- *****************************************************/
-uint16_t ADC0_DMA_buffer[NUMBER_OF_ADC_SAMPLES];        //Buffer to store the ADC0 DMA results
-DMA_CB_TypeDef ADC0_cb;                                 //Callback structure for DMA
+#define LEUART_EM           EM1
 
 
 /************************************************************************
-* Initialize DMA for ADC
+* Description
 *
 * Input variables: None
 *
@@ -81,34 +81,16 @@ DMA_CB_TypeDef ADC0_cb;                                 //Callback structure for
 *
 * Returned variables: None
 *
+* IP
 **************************************************************************/
-void Init_DMA();
+void leuart_setup();
 
 
-/************************************************************************
-* Initialize DMA for ADC
-*
-* Input variables: None
-*
-* Global variables: ADC0_cb
-*
-* Returned variables: None
-*
-**************************************************************************/
-void ADC0_DMA_Init();
+
+__STATIC_INLINE void LEUART0_Send_Byte(uint8_t byte){
+    LEUART0->TXDATA = byte;                             //Write the byte to the transmit data buffer
+}
 
 
-/************************************************************************
-* Callback routine for DMA complete
-*
-* Input variables: channel, primary, *user
-*
-* Global variables: adcSum, count
-*
-* Returned variables: None
-*
-**************************************************************************/
-void ADC0_DMA_Done(unsigned int channel, bool primary, void *user);
 
-
-#endif /* DMA_H */
+#endif /* LEUART_H */

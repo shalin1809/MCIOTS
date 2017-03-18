@@ -66,7 +66,7 @@
 #define LIGHTSENSE_PIN              6
 #define LIGHT_LED                   0
 
-#define ENABLE_PASSIVE_LIGHT_SENSOR false
+#define ENABLE_PASSIVE_LIGHT_SENSOR true
 
 
 #define TSL2561_THRESHOLD_LOW       0x000f      //External ambient light sensor low threshold
@@ -160,7 +160,7 @@ __STATIC_INLINE void TSL2561_PowerOn()
     GPIO_PinModeSet(TSL2561_POWER_PORT, TSL2561_POWER_PIN, gpioModePushPull, 1);    //Turn on power supply
     GPIO_PinModeSet(I2C1_SCL_PORT, I2C1_SCL_PIN, gpioModeWiredAndPullUp, 1);        //Turn on SCL for I2C
     GPIO_PinModeSet(I2C1_SDA_PORT, I2C1_SDA_PIN, gpioModeWiredAndPullUp, 1);        //Turn on SDA for I2C
-    GPIO_PinOutSet(TSL2561_POWER_PORT, TSL2561_POWER_PIN);                          //Set power pin high
+    GPIO_PinModeSet(TSL2561_INT_PORT, TSL2561_INT_PIN, gpioModeInput, 1);           //Initialize the interrupt pin
 }
 
 
@@ -181,6 +181,7 @@ __STATIC_INLINE void TSL2561_PowerOff()
     GPIO_IntClear(GPIO->IF);                                                        //Clear interrupts
     GPIO_PinOutClear(TSL2561_POWER_PORT, TSL2561_POWER_PIN);                        //Clear the power pin to ground value
     GPIO_PinModeSet(TSL2561_POWER_PORT, TSL2561_POWER_PIN, gpioModeDisabled, 0);    //Disable the power pin
+    GPIO_PinModeSet(TSL2561_INT_PORT, TSL2561_INT_PIN, gpioModeDisabled, 0);        //Disable the interrupt pin
     GPIO_PinModeSet(I2C1_SCL_PORT, I2C1_SCL_PIN, gpioModeDisabled, 0);              //Disable the SCL pin
     GPIO_PinModeSet(I2C1_SDA_PORT, I2C1_SDA_PIN, gpioModeDisabled, 0);              //Disable the I2C pin
 }

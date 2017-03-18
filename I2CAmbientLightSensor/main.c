@@ -60,6 +60,8 @@
 #include "adc.h"
 #include "dma.h"
 #include "i2c.h"
+#include "leuart.h"
+#include "circular_buffer.h"
 
 
 /*****************************************************
@@ -95,13 +97,20 @@ int main(void)
 #if ENABLE_PASSIVE_LIGHT_SENSOR
     Light_Sense_Init();                 //Initialize Ambient Light Sensor
     ACMP0_Init();                       //Initialize ACMP
+#else
+    I2C_TSL2561_Init();                 //Initialize the TSL2561 sensor
 #endif
     Init_ADC0();                        //Initialize ADC0
     Init_DMA();                         //Initialize DMA
-    I2C_TSL2561_Init();                 //Initialize the TSL2561 sensor
+    leuart_setup();                     //Initialize the LEUART
+    tx_buff = &tbuff;
+    circular_buffer_init(tx_buff);
     LETIMER_Enable(LETIMER0, true);     //Enable letimer0
+
+
     /* Infinite loop */
     while (1) {
         Sleep();						//Put to sleep after executing interrupts
     }
 }
+

@@ -47,6 +47,7 @@
 
 
 
+
 /************************************************************************
 * Setup and initialize the LETIMER
 *
@@ -174,7 +175,11 @@ void LETIMER0_IRQHandler(void)
         else if(periodCount == 3)           //For the third LETIMER period
             periodCount = 0;                //Reset the counter
 #endif
+
+
         LETIMER0->IFC = intFlags;           //Clear interrupt flags
+
+
 #if ENABLE_PASSIVE_LIGHT_SENSOR
         if(ACMPstatus)                                      //if output is high
         {
@@ -192,7 +197,6 @@ void LETIMER0_IRQHandler(void)
                 ACMP_ChannelSet(ACMP0, ACMP_LIGHTSENSE_CHANNEL, ACMP_LIGHTSENSE_REF);   //Swap positive and negative inputs of ACMP0
                 ledOFF(LIGHT_LED);                          //Turn off LED
             }
-
         }
 #endif
     }

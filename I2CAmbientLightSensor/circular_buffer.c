@@ -1,7 +1,7 @@
 /******************************************************************************
-* File: dma.h
+* File: circular_buffer.c
 *
-* Created on: 14-Feb-2017
+* Created on: 17-Mar-2017
 * Author: Shalin Shah
 * 
 *******************************************************************************
@@ -36,79 +36,18 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1. void Init_DMA();
-* 2. void ADC0_DMA_Init();
+* 1.
 ******************************************************************************/
 
-#ifndef DMA_H
-#define DMA_H
-
-
 
 
 /*****************************************************
-	 		* Include Statements *
+            * Include Statements *
  *****************************************************/
-#include "em_dma.h"
-#include "em_device.h"
-#include "dmactrl.c"
-#include "adc.h"
 #include "circular_buffer.h"
-#include "leuart.h"
-
-/*****************************************************
- 			* Define Statements *
- *****************************************************/
-#define ADC0_DMA_Arbitration dmaArbitrate1              //0 R_BIT value for ADC0 DMA
-#define ADC0_DMA_Channel 0                              //DMA Channel used for ADC0
-#define BYTES_2 dmaDataSize2                            //16-bit data size
-#define INC_BYTES_2 dmaDataInc2                         //16-bit data increment
 
 
-/*****************************************************
-            * Global Variables *
- *****************************************************/
-uint16_t ADC0_DMA_buffer[NUMBER_OF_ADC_SAMPLES];        //Buffer to store the ADC0 DMA results
-DMA_CB_TypeDef ADC0_cb;                                 //Callback structure for DMA
 
 
-/************************************************************************
-* Initialize DMA for ADC
-*
-* Input variables: None
-*
-* Global variables: None
-*
-* Returned variables: None
-*
-**************************************************************************/
-void Init_DMA();
 
 
-/************************************************************************
-* Initialize DMA for ADC
-*
-* Input variables: None
-*
-* Global variables: ADC0_cb
-*
-* Returned variables: None
-*
-**************************************************************************/
-void ADC0_DMA_Init();
-
-
-/************************************************************************
-* Callback routine for DMA complete
-*
-* Input variables: channel, primary, *user
-*
-* Global variables: adcSum, count
-*
-* Returned variables: None
-*
-**************************************************************************/
-void ADC0_DMA_Done(unsigned int channel, bool primary, void *user);
-
-
-#endif /* DMA_H */

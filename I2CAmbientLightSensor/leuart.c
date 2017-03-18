@@ -1,7 +1,7 @@
 /******************************************************************************
-* File: dma.h
+* File: leuart.c
 *
-* Created on: 14-Feb-2017
+* Created on: 15-Mar-2017
 * Author: Shalin Shah
 * 
 *******************************************************************************
@@ -36,79 +36,60 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1. void Init_DMA();
-* 2. void ADC0_DMA_Init();
+* 1.
 ******************************************************************************/
 
-#ifndef DMA_H
-#define DMA_H
-
 
 
 
 /*****************************************************
-	 		* Include Statements *
+            * Include Statements *
  *****************************************************/
-#include "em_dma.h"
-#include "em_device.h"
-#include "dmactrl.c"
-#include "adc.h"
-#include "circular_buffer.h"
 #include "leuart.h"
 
-/*****************************************************
- 			* Define Statements *
- *****************************************************/
-#define ADC0_DMA_Arbitration dmaArbitrate1              //0 R_BIT value for ADC0 DMA
-#define ADC0_DMA_Channel 0                              //DMA Channel used for ADC0
-#define BYTES_2 dmaDataSize2                            //16-bit data size
-#define INC_BYTES_2 dmaDataInc2                         //16-bit data increment
 
 
-/*****************************************************
-            * Global Variables *
- *****************************************************/
-uint16_t ADC0_DMA_buffer[NUMBER_OF_ADC_SAMPLES];        //Buffer to store the ADC0 DMA results
-DMA_CB_TypeDef ADC0_cb;                                 //Callback structure for DMA
+
+void leuart_setup(){
+
+    GPIO_PinModeSet(LEUART_TXPORT, LEUART_TXPIN, gpioModePushPull, 1);
+    GPIO_PinModeSet(LEUART_RXPORT, LEUART_RXPIN, gpioModeInput, 1);
+
+    LEUART_Init_TypeDef leuart_init =
+    {
+      .enable = false,                          //Do not enable on initialization
+      .refFreq = LEUART_NOREF,                  //Use current clock as reference for configuring the baud rate
+      .baudrate = LEUART_BAUD,                  //Set the LEUART BAUD rate
+      .databits = leuartDatabits8,              //Use 8 data bits
+      .parity = leuartNoParity,                 //Don't use any parity
+      .stopbits = leuartStopbits1               //Use 1 stop bit
+    };
+
+    LEUART_Init(LEUART0, &leuart_init);         //Initialize the LEUART
+
+    LEUART0->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | LEUART_LOCATION; //Select location 0, PD4- TX, PD5- RX
+    LEUART_IntDisable(LEUART0,LEUART_DIS_ALL_INT);      //Disable all interrupts
+    LEUART_IntClear(LEUART0, LEUART_CLEAR_ALL_INT);     //Clear all interrupt flags
+    LEUART_IntEnable(LEUART0, LEUART_IFC_TXC);          //Enable transmit complete interrupts
+    NVIC_EnableIRQ(LEUART0_IRQn);                       //Enable LEUART in the NVIC table
+    LEUART_Enable(LEUART0, true);                       //Enable LEUART
+}
 
 
-/************************************************************************
-* Initialize DMA for ADC
-*
-* Input variables: None
-*
-* Global variables: None
-*
-* Returned variables: None
-*
-**************************************************************************/
-void Init_DMA();
 
 
-/************************************************************************
-* Initialize DMA for ADC
-*
-* Input variables: None
-*
-* Global variables: ADC0_cb
-*
-* Returned variables: None
-*
-**************************************************************************/
-void ADC0_DMA_Init();
+void LEUART0_IRQHandler(void){
+    uint8_t byte;
+    __disable_irq();
+    byte = remove_item(tx_buff);
+    LEUART0->IFC = LEUART_CLEAR_ALL_INT;
+    if(byte)
+        LEUART0_Send_Byte(byte);
+    else{
+        UnblockSleepMode(LEUART_EM);
+        LEUART0->CMD = LEUART_CMD_RXDIS|LEUART_CMD_TXDIS;
+    }
 
+    __enable_irq();
+}
 
-/************************************************************************
-* Callback routine for DMA complete
-*
-* Input variables: channel, primary, *user
-*
-* Global variables: adcSum, count
-*
-* Returned variables: None
-*
-**************************************************************************/
-void ADC0_DMA_Done(unsigned int channel, bool primary, void *user);
-
-
-#endif /* DMA_H */
