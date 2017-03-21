@@ -36,7 +36,8 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1.
+* 1. void leuart_setup();
+* 2. void LEUART0_IRQHandler(void);
 ******************************************************************************/
 
 
@@ -49,23 +50,31 @@
 
 
 
-
+/************************************************************************
+* Function to setup and initialize LEUART0
+*
+* Input variables: None
+*
+* Global variables: None
+*
+* Returned variables: None
+**************************************************************************/
 void leuart_setup(){
 
-    GPIO_PinModeSet(LEUART_TXPORT, LEUART_TXPIN, gpioModePushPull, 1);
-    GPIO_PinModeSet(LEUART_RXPORT, LEUART_RXPIN, gpioModeInput, 1);
+    GPIO_PinModeSet(LEUART_TXPORT, LEUART_TXPIN, gpioModePushPull, 1);      //Initialize and set TX pin as output
+    GPIO_PinModeSet(LEUART_RXPORT, LEUART_RXPIN, gpioModeInput, 1);         //Initialize and set RX pin as input
 
     LEUART_Init_TypeDef leuart_init =
     {
-      .enable = false,                          //Do not enable on initialization
-      .refFreq = LEUART_NOREF,                  //Use current clock as reference for configuring the baud rate
-      .baudrate = LEUART_BAUD,                  //Set the LEUART BAUD rate
-      .databits = leuartDatabits8,              //Use 8 data bits
-      .parity = leuartNoParity,                 //Don't use any parity
-      .stopbits = leuartStopbits1               //Use 1 stop bit
+      .enable = false,                                  //Do not enable on initialization
+      .refFreq = LEUART_NOREF,                          //Use current clock as reference for configuring the baud rate
+      .baudrate = LEUART_BAUD,                          //Set the LEUART BAUD rate
+      .databits = leuartDatabits8,                      //Use 8 data bits
+      .parity = leuartNoParity,                         //Don't use any parity
+      .stopbits = leuartStopbits1                       //Use 1 stop bit
     };
 
-    LEUART_Init(LEUART0, &leuart_init);         //Initialize the LEUART
+    LEUART_Init(LEUART0, &leuart_init);                 //Initialize the LEUART
 
     LEUART0->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | LEUART_LOCATION; //Select location 0, PD4- TX, PD5- RX
     LEUART_IntDisable(LEUART0,LEUART_DIS_ALL_INT);      //Disable all interrupts
@@ -77,19 +86,27 @@ void leuart_setup(){
 
 
 
-
+/************************************************************************
+* LEUART0 IRQ Handler
+*
+* Input variables: None
+*
+* Global variables: None
+*
+* Returned variables: None
+**************************************************************************/
 void LEUART0_IRQHandler(void){
     uint8_t byte;
-    __disable_irq();
-    byte = remove_item(tx_buff);
-    LEUART0->IFC = LEUART_CLEAR_ALL_INT;
-    if(byte)
-        LEUART0_Send_Byte(byte);
-    else{
-        UnblockSleepMode(LEUART_EM);
-        LEUART0->CMD = LEUART_CMD_RXDIS|LEUART_CMD_TXDIS;
+    __disable_irq();                                            //Disable interrupts
+    LEUART0->IFC = LEUART_CLEAR_ALL_INT;                        //Clear LEUART interrupts
+    if(tx_buff-> count){                             //If there is anything in the buffer
+        byte = remove_item(tx_buff);                            //Fetch one byte from the circular buffer
+        LEUART0_Send_Byte(byte);                                //Send the byte
     }
-
-    __enable_irq();
+    else{                                           //If transmission complete
+        UnblockSleepMode(LEUART_EM);                            //Unblock sleep mode
+        LEUART0->CMD = LEUART_CMD_RXDIS|LEUART_CMD_TXDIS;       //Disable RX and TX pins
+    }
+    __enable_irq();                                             //Re-enable interrupts
 }
 

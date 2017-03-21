@@ -61,18 +61,19 @@
 #define ADC_TEMP_REF    _ADC_SINGLECTRL_REF_1V25            //ADC reference used for temperature sensor
 #define ADC_TEMP_SENSOR _ADC_SINGLECTRL_INPUTSEL_TEMP       //ADC input source for temperature sensor
 #define ADC_ACQ_2CYCLES _ADC_SINGLECTRL_AT_2CYCLES          //ADC acquisition set to 2 cycles
+#define ADC_ACQ_4CYCLES _ADC_SINGLECTRL_AT_4CYCLES          //ADC acquisition set to 4 cycles
 #define ADC_RES_12BIT   _ADC_SINGLECTRL_RES_12BIT           //ADC resolution set to 12 bit
-#define ADC_Prescale    24                                  //Prescalar value to prescale by 50
+#define ADC_Prescale    9                                   //Prescalar value to prescale by 50
 #define TGRAD_ADC       -6.3                                //Temperature gradient given in the datasheet
-#define NUMBER_OF_ADC_SAMPLES 1000                           //Number of ADC samples to be averaged
+#define NUMBER_OF_ADC_SAMPLES 500                           //Number of ADC samples to be averaged
 #define TGRAD_ADCTH (TGRAD_ADC*NUMBER_OF_ADC_SAMPLES)       //Temperature gradient for required number of cycles
-#define ADC_TIMEBASE 14                                     //Timebase required for 1uS
-#define ADC_EM  EM1                                         //Minimum Energy mode for ADC
+#define ADC_TIMEBASE    14                                  //Timebase required for 1uS
+#define ADC_EM          EM1                                 //Minimum Energy mode for ADC
 
 
 
-#define USE_DMA true                                        //Use DMA for ADC transfers, false will use ADC IRQ
-#define TEMP_LOW_THRESHOLD 15                               //Lower threshold temperature value
+#define USE_DMA             true                            //Use DMA for ADC transfers, false will use ADC IRQ
+#define TEMP_LOW_THRESHOLD  15                              //Lower threshold temperature value
 #define TEMP_HIGH_THRESHOLD 35                              //Higher threshold temperature value
 
 /*****************************************************
@@ -132,13 +133,11 @@ __STATIC_INLINE void ADC_Read(void)
 __STATIC_INLINE float convertToCelcius(void)
 {
     float temperature = 0;                              //Initialize temperature to 0
-
     /* Calculate the temperature using the device calibration values */
     temperature = cal_value_0*NUMBER_OF_ADC_SAMPLES;
     temperature -= adcSum;
     temperature /= TGRAD_ADCTH;
     temperature = (float)cal_temp_0 - temperature;
-
     return temperature;                                 //return the calculated temperature value
 }
 

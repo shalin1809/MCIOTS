@@ -67,10 +67,10 @@
 /*****************************************************
             * Define Statements *
  *****************************************************/
-#define ON 1
-#define OFF 0
-#define Calibration ON                  //Macro to turn calibration ON or OFF
-#define milliseconds 1000               //Macro for calibration time in milliseconds
+#define ON              1
+#define OFF             0
+#define Calibration     ON                      //Macro to turn calibration ON or OFF
+#define milliseconds    1000                    //Macro for calibration time in milliseconds
 
 #if !Calibration
     #define CMU_CAL_ULFRCO(x) __NOP()
@@ -104,7 +104,7 @@ int main(void)
     Init_DMA();                         //Initialize DMA
     leuart_setup();                     //Initialize the LEUART
     tx_buff = &tbuff;
-    circular_buffer_init(tx_buff);
+    circular_buffer_init(tx_buff);      //Initialize the circular buffer
     LETIMER_Enable(LETIMER0, true);     //Enable letimer0
 
 

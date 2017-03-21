@@ -137,7 +137,7 @@ void ADC0_DMA_Done(unsigned int channel, bool primary, void *user)
     while(count)
         adcSum += ADC0_DMA_buffer[count--];                 //Sum the ADC0 buffer values
     UnblockSleepMode(ADC_EM);                               //Unblock sleep mode
-    union temperature_t{
+    union temperature_t{                                    //union to access individual bytes of the float temperature
         float temp;
         struct bytes_t{
             uint8_t byte1;
@@ -149,14 +149,12 @@ void ADC0_DMA_Done(unsigned int channel, bool primary, void *user)
     temperature.temp = convertToCelcius();                  //Get the temperature in celsius using adcSum
 
     LEUART0->CMD = LEUART_CMD_TXEN;                         //Enable UART tx pin
-    if(sleep_block_counter[LEUART_EM]==0)
-        BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
-    add_item(tx_buff,TEMPERATURE);                          //Add temperature command to the buffer
+    BlockSleepMode(LEUART_EM);                              //Block sleep mode to EM1
     add_item(tx_buff,temperature.bytes.byte1);              //Add the float value of temperature bytewize
     add_item(tx_buff,temperature.bytes.byte2);
     add_item(tx_buff,temperature.bytes.byte3);
     add_item(tx_buff,temperature.bytes.byte4);
-    add_item(tx_buff,0);                                    //Append null to show end of data
+    add_item(tx_buff,led0_state);                           //Add current state of led0 to the buffer
     LEUART0->IFS = LEUART_IFS_TXC;                          //Set transmit complete interrupt to trigger transmission of data
 
     if(TEMP_LOW_THRESHOLD > temperature.temp || temperature.temp > TEMP_HIGH_THRESHOLD) //If temperature exceeds boundary conditions

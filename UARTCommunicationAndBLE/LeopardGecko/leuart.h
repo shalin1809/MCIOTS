@@ -36,7 +36,7 @@
 * used in compliance with the licenses and copyrights.
 *
 * The functions that use this library are:
-* 1.
+* 1. void leuart_setup();
 ******************************************************************************/
 
 #ifndef LEUART_H
@@ -69,24 +69,30 @@
 #define LEUART_CLEAR_ALL_INT    0x7F9           //Clear all interrupt flags
 #define LEUART_DIS_ALL_INT  0x7FF               //Disable all interrupt flags
 
-#define LEUART_EM           EM1
+#define LEUART_EM           EM2
 
 
 /************************************************************************
-* Description
+* Function to setup and initialize LEUART0
 *
 * Input variables: None
 *
 * Global variables: None
 *
 * Returned variables: None
-*
-* IP
 **************************************************************************/
 void leuart_setup();
 
 
-
+/************************************************************************
+* Function to send one byte of data via LEUART0
+*
+* Input variables: byte
+*
+* Global variables: None
+*
+* Returned variables: None
+**************************************************************************/
 __STATIC_INLINE void LEUART0_Send_Byte(uint8_t byte){
     LEUART0->TXDATA = byte;                             //Write the byte to the transmit data buffer
 }

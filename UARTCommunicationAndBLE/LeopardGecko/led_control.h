@@ -50,6 +50,7 @@
  *****************************************************/
 #include "em_gpio.h"
 #include "em_cmu.h"
+#include "stdint.h"
 
 
 
@@ -62,6 +63,18 @@
 #define LED1Pin 3
 #define LEDPort gpioPortE
 #define LED_PIN_OFFSET 2
+
+
+
+/*****************************************************
+            * Global Variables *
+ *****************************************************/
+enum led_state{
+    OFF = 0,
+    ON = 1
+};
+
+uint8_t led0_state;
 
 
 /************************************************************************
@@ -93,6 +106,8 @@ __STATIC_INLINE void ledInit(void)
 __STATIC_INLINE void ledON(unsigned int led)
 {
     GPIO_PinOutSet(LEDPort,(led+LED_PIN_OFFSET));                   //Set gpio pin high
+    if(led ==0)
+        led0_state = ON;
 }
 
 
@@ -108,6 +123,8 @@ __STATIC_INLINE void ledON(unsigned int led)
 __STATIC_INLINE void ledOFF(unsigned int led)
 {
     GPIO_PinOutClear(LEDPort,(led+LED_PIN_OFFSET));                 //Set gpio pin low
+    if(led ==0)
+        led0_state = OFF;
 }
 
 
@@ -123,6 +140,13 @@ __STATIC_INLINE void ledOFF(unsigned int led)
 __STATIC_INLINE void ledToggle(unsigned int led)
 {
     GPIO_PinOutToggle(LEDPort,(led+LED_PIN_OFFSET));                //Toggle gpio pin ouput
+    if(led ==0)
+    {
+        if(led0_state == ON)
+            led0_state = OFF;
+        else
+            led0_state = ON;
+    }
 }
 
 #endif /* LED_CONTROL_H */

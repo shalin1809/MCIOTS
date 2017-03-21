@@ -55,6 +55,7 @@
 #include "adc.h"
 #include "circular_buffer.h"
 #include "leuart.h"
+#include "led_control.h"
 
 /*****************************************************
  			* Define Statements *

@@ -64,7 +64,7 @@ void CMU_Setup(void)
         CMU_OscillatorEnable(cmuOsc_ULFRCO, true, true);    //Enable ULFRCO clock for EM3
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO); //Select ULFRCO as the clock for LFA clock tree to the letimer
         CMU_OscillatorEnable(cmuOsc_LFXO, true, true);      //Enable LXF0 clock oscillator
-        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO); //Select ULFRCO as the clock for LFB clock tree to the leuart
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);   //Select ULFRCO as the clock for LFB clock tree to the leuart
     }
     else
     {

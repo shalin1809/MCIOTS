@@ -75,7 +75,7 @@ void Init_ADC0(void)
     {
         .prsSel = ADC_SINGLECTRL_PRSEN_DEFAULT,             //Default valur for PRS trigger
         .prsEnable = false,                                 //Disable PRS trigger
-        .acqTime = ADC_ACQ_2CYCLES,                         //Acquisition time set to 2 cycles
+        .acqTime = ADC_ACQ_4CYCLES,                         //Acquisition time set to 2 cycles
         .reference = ADC_TEMP_REF,                          //Internal 1.25V reference selected
         .input = ADC_TEMP_SENSOR,                           //Temperature sensor selected as input
         .resolution = ADC_RES_12BIT,                        //12-bit resolution
@@ -111,7 +111,7 @@ void ADC0_IRQHandler(void)
         ADC0->IEN &= ~ADC_IEN_SINGLE;               //Disable interrupts
         ADC0->CMD |= ADC_CMD_SINGLESTOP;            //Stop ADC0
         UnblockSleepMode(ADC_EM);                   //Unblock minimum sleep mode required for ADc
-        union temperature_t{
+        union temperature_t{                        //union to access individual bytes of the float temperature
             float temp;
             struct bytes_t{
                 uint8_t byte1;
@@ -120,7 +120,7 @@ void ADC0_IRQHandler(void)
                 uint8_t byte4;
             }bytes;
         }temperature;
-        temperature.temp = convertToCelcius();            //Calculate the temperature
+        temperature.temp = convertToCelcius();      //Calculate the temperature
         if(TEMP_LOW_THRESHOLD > temperature.temp || temperature.temp > TEMP_HIGH_THRESHOLD) //If the temperature goes beyond the boundaries
         {
             ledON(1);                               //Turn on LED 1
@@ -128,15 +128,14 @@ void ADC0_IRQHandler(void)
         else                                        //If it is within limits
             ledOFF(1);                              //Turn OFF LED 1
 
-        LEUART0->CMD = LEUART_CMD_TXEN;
-        BlockSleepMode(LEUART_EM);
-        add_item(tx_buff,TEMPERATURE);
-        add_item(tx_buff,temperature.bytes.byte1);
+        LEUART0->CMD = LEUART_CMD_TXEN;                     //Enable UART tx pin
+        BlockSleepMode(LEUART_EM);                          //Block sleep mode to EM1
+        add_item(tx_buff,temperature.bytes.byte1);          //Add the float value of temperature bytewize
         add_item(tx_buff,temperature.bytes.byte2);
         add_item(tx_buff,temperature.bytes.byte3);
         add_item(tx_buff,temperature.bytes.byte4);
-        add_item(tx_buff,0);
-        LEUART0->IFS = LEUART_IFS_TXC;
+        add_item(tx_buff,led0_state);                       //Add current state of led0 to the buffer
+        LEUART0->IFS = LEUART_IFS_TXC;                      //Set transmit complete interrupt to trigger transmission of data
     }
     __enable_irq();
 }
